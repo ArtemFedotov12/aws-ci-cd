@@ -3,6 +3,7 @@ package com.start.springlearningdemo.service.userService;
 
 import com.start.springlearningdemo.enums.Role;
 import com.start.springlearningdemo.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 
 @Service(value = "userService")
+@Slf4j
 public class UserServiceImpl implements UserDetailsService {
 
 	private static final List<User> users = List.of(
@@ -23,6 +25,7 @@ public class UserServiceImpl implements UserDetailsService {
 	);
 
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		log.info("LOAD user from db. {}", username);
 		User user = users.stream().filter(u -> username.equals(u.getUsername())).findFirst().orElse(null);
 		if(user == null){
 			throw new UsernameNotFoundException("Invalid username or password.");

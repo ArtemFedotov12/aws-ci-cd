@@ -21,7 +21,7 @@ import java.io.IOException;
 import static com.start.springlearningdemo.utils.Constants.HEADER_STRING;
 import static com.start.springlearningdemo.utils.Constants.TOKEN_PREFIX;
 
-@Component
+//@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(final HttpServletRequest req,
                                     final HttpServletResponse res,
                                     final FilterChain chain) throws IOException, ServletException {
-        final String header = req.getHeader(HEADER_STRING);
+/*        final String header = req.getHeader(HEADER_STRING);
         String username = null;
         String authToken = null;
 
@@ -69,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.info("authenticated user " + username + ", setting security context");
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        }
+        }*/
 
         chain.doFilter(req, res);
     }
