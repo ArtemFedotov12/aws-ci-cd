@@ -4,6 +4,9 @@ phases:
     commands:
       - echo Packaging JAR file...
       - mvn clean package
+      - echo Start of ls
+      - ls -la target
+      - echo End of ls
   post_build:
     commands:
       - echo Build complete.
