@@ -1,1 +1,0 @@
-web: java -jar spring-demo.jar
