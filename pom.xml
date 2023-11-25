@@ -11,6 +11,7 @@
   <artifactId>spring-learning-demo</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>spring-learning-demo</name>
+  <packaging>jar</packaging>
   <description>Demo project for Spring Boot</description>
 
   <properties>
@@ -21,6 +22,7 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
+      <version>3.2.0</version> 
     </dependency>
 
     <dependency>
@@ -93,6 +95,7 @@
   </dependencies>
 
   <build>
+    <finalName>spring-demo</finalName>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
