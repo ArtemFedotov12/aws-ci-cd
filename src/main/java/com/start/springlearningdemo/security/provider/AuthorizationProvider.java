@@ -1,12 +1,12 @@
-package com.start.springlearningdemo.security;
+package com.start.springlearningdemo.security.provider;
 
+import com.start.springlearningdemo.exception.UnauthorizedException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,25 +19,21 @@ public class AuthorizationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String username = authentication.getName();
-        String password = authentication.getCredentials().toString();
-        // Perform your custom authentication logic here
-        // Retrieve user details from userDetailsService and validate the credentials
-        // You can throw AuthenticationException if authentication fails
-        // Example: retrieving user details by username from UserDetailsService
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        if (userDetails == null) {
-            throw new UsernameNotFoundException("User not found");
+    public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
+        final String username = authentication.getName();
+        final Object credentials = authentication.getCredentials();
+        if (username == null || credentials == null) {
+            throw new UnauthorizedException();
         }
+        final String password = credentials.toString();
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         // Example: validating credentials
-        if (!password.equals(userDetails.getPassword())) {
-            throw new AuthenticationException("Invalid credentials") {};
+        if (userDetails == null || !password.equals(userDetails.getPassword())) {
+            throw new UnauthorizedException();
         }
         // Create a fully authenticated Authentication object
-        Authentication authenticated = new UsernamePasswordAuthenticationToken(
+        return new UsernamePasswordAuthenticationToken(
                 userDetails, password, userDetails.getAuthorities());
-        return authenticated;
     }
 
     @Override

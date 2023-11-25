@@ -1,6 +1,7 @@
-package com.start.springlearningdemo.config;
+package com.start.springlearningdemo.security;
 
 import io.jsonwebtoken.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,9 +22,24 @@ import static com.start.springlearningdemo.utils.Constants.*;
 @Component
 public class TokenProvider implements Serializable {
 
-    public String getUsernameFromToken(String token) {
+    public String getUsernameFromToken(final String token) {
         // Function Interface --- getString("sub");
         return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    public List<String> getRolesFromToken(String token) {
+        return List.of(
+                getClaimFromToken(token, (claims) -> claims.get(AUTHORITIES_KEY)).toString()
+                        .split(ROLES_DELIMITER));
+    }
+
+    public UserDetails getUserDetailsFromToken(final String token) {
+        final String username = getUsernameFromToken(token);
+        final List<String> roles = getRolesFromToken(token);
+        return new org.springframework.security.core.userdetails.User(
+                username,
+                StringUtils.EMPTY,
+                roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
     }
 
     public Date getExpirationDateFromToken(String token) {
@@ -62,31 +79,26 @@ public class TokenProvider implements Serializable {
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 //1000 - means milliseconds  and 5*60*60 = 18000 seconds = 5 hours
                 // key - 'exp'
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS*1000))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS * 1000))
                 .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
-        return (
-              username.equals(userDetails.getUsername())
-                    && !isTokenExpired(token));
+    public Boolean validateToken(final String token) {
+        return !isTokenExpired(token);
     }
 
-    UsernamePasswordAuthenticationToken getAuthentication(final String token, final Authentication existingAuth, final UserDetails userDetails) {
+    public UsernamePasswordAuthenticationToken getAuthentication(final String token, final Authentication existingAuth, final UserDetails userDetails) {
 
         final JwtParser jwtParser = Jwts.parser().setSigningKey(SIGNING_KEY);
-
         final Jws<Claims> claimsJws = jwtParser.parseClaimsJws(token);
-
         final Claims claims = claimsJws.getBody();
 
         final Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(ROLES_DELIMITER))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+        return new UsernamePasswordAuthenticationToken(userDetails, StringUtils.EMPTY, authorities);
     }
 
 }

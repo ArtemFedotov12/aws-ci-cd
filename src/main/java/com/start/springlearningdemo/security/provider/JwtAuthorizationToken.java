@@ -1,4 +1,4 @@
-package com.start.springlearningdemo.security;
+package com.start.springlearningdemo.security.provider;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 

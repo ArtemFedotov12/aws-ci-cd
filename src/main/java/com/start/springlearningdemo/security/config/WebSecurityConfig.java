@@ -1,8 +1,9 @@
-package com.start.springlearningdemo.config;
+package com.start.springlearningdemo.security.config;
 
-import com.start.springlearningdemo.security.AuthorizationProvider;
-import com.start.springlearningdemo.security.JwtAuthenticationProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.start.springlearningdemo.security.provider.AuthorizationProvider;
+import com.start.springlearningdemo.security.filter.JwtAuthenticationProcessingFilter;
+import com.start.springlearningdemo.security.provider.JwtAuthenticationProvider;
+import com.start.springlearningdemo.security.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,35 +13,27 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-//@EnableGlobalMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig {
 
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final UserDetailsService userDetailsService;
-
+    private final TokenProvider tokenProvider;
     private final AuthorizationProvider authorizationProvider;
-    private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
-    public WebSecurityConfig(final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                             @Qualifier("userService")
-                             final UserDetailsService userDetailsService,
-                             final AuthorizationProvider authorizationProvider,
-                             final JwtAuthenticationProvider jwtAuthenticationProvider) {
-        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
-        this.userDetailsService = userDetailsService;
+
+    public WebSecurityConfig(final TokenProvider tokenProvider,
+                             final AuthorizationProvider authorizationProvider) {
+        this.tokenProvider = tokenProvider;
         this.authorizationProvider = authorizationProvider;
-        this.jwtAuthenticationProvider = jwtAuthenticationProvider;
     }
 
     @Bean
@@ -59,36 +52,43 @@ public class WebSecurityConfig {
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                //.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .httpBasic((httpBasic) -> httpBasic.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                .addFilterBefore(jwt2AuthFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(getJwtAuthProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    private Jwt2AuthFilter jwt2AuthFilter() throws Exception {
-        Jwt2AuthFilter jwt2AuthFilter = new Jwt2AuthFilter();
-        jwt2AuthFilter.setAuthenticationManager(authenticationManager());
-        return jwt2AuthFilter;
+    private JwtAuthenticationProcessingFilter getJwtAuthProcessingFilter() {
+        JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter = new JwtAuthenticationProcessingFilter(
+                getJwtRequestMatcher(),
+                getJwtAuthenticationProvider());
+        jwtAuthenticationProcessingFilter.setAuthenticationManager(authenticationManager());
+        return jwtAuthenticationProcessingFilter;
     }
 
+    private RequestMatcher getJwtRequestMatcher() {
+        return new AndRequestMatcher(
+                (new NegatedRequestMatcher(new OrRequestMatcher(
+                        new AntPathRequestMatcher("/login"),
+                        new AntPathRequestMatcher("/health")))),
+                new AntPathRequestMatcher("/**"));
+    }
+
+    private JwtAuthenticationProvider getJwtAuthenticationProvider() {
+        return new JwtAuthenticationProvider(tokenProvider);
+    }
+
+    // used, because we don't have db
     @Bean
     public PasswordEncoder encoder() {
         return NoOpPasswordEncoder.getInstance();
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager()
-            throws Exception {
-        //AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-       // authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(encoder);
-        //return authenticationManagerBuilder.build();
 
+    @Bean
+    public AuthenticationManager authenticationManager() {
         final ProviderManager providerManager =
-                new ProviderManager(new ArrayList<>(List.of(authorizationProvider, jwtAuthenticationProvider)));
+                new ProviderManager(new ArrayList<>(List.of(authorizationProvider)));
         providerManager.setEraseCredentialsAfterAuthentication(false);
         return providerManager;
     }
-
-
 
 }

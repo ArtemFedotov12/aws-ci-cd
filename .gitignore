@@ -37,5 +37,6 @@ build/
 .mvn/
 mvnw
 mvnw.cmd
+pom.xml.bak
 
 cloud-formation/**
