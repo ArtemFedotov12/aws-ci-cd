@@ -40,9 +40,9 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors((cors) -> {})
+                .cors(cors -> {})
                 .authorizeHttpRequests(
-                        (authorizeHttpRequests) ->
+                        authorizeHttpRequests ->
                         authorizeHttpRequests
                                 .requestMatchers(HttpMethod.GET, "/health").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/login").permitAll()

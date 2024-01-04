@@ -46,10 +46,9 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             // do not fire request to DB
             final UserDetails userDetails = tokenProvider.getUserDetailsFromToken(token);
 
-            if (tokenProvider.validateToken(token)) {
+            if (Boolean.TRUE.equals(tokenProvider.validateToken(token))) {
                 tokenProviderAuthentication = tokenProvider.getAuthentication(
                         token,
-                        SecurityContextHolder.getContext().getAuthentication(),
                         userDetails);
                 log.info("Authenticated user '{}'. Set authentication to the security context", username);
                 SecurityContextHolder.getContext().setAuthentication(authentication);

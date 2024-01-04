@@ -2,6 +2,7 @@ package com.start.springlearningdemo.security;
 
 import io.jsonwebtoken.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,14 +23,18 @@ import static com.start.springlearningdemo.utils.Constants.*;
 @Component
 public class TokenProvider implements Serializable {
 
+    @Value("${jwt.signing.key}")
+    private String jwtSigningKey;
+
+
     public String getUsernameFromToken(final String token) {
-        // Function Interface --- getString("sub");
+        //Function Interface --- getString("sub");
         return getClaimFromToken(token, Claims::getSubject);
     }
 
     public List<String> getRolesFromToken(String token) {
         return List.of(
-                getClaimFromToken(token, (claims) -> claims.get(AUTHORITIES_KEY)).toString()
+                getClaimFromToken(token, claims -> claims.get(AUTHORITIES_KEY)).toString()
                         .split(ROLES_DELIMITER));
     }
 
@@ -39,7 +44,7 @@ public class TokenProvider implements Serializable {
         return new org.springframework.security.core.userdetails.User(
                 username,
                 StringUtils.EMPTY,
-                roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
+                roles.stream().map(SimpleGrantedAuthority::new).toList());
     }
 
     public Date getExpirationDateFromToken(String token) {
@@ -56,7 +61,7 @@ public class TokenProvider implements Serializable {
     //Evaluate: {sub=user2, scopes=ROLE_USER, iat=1584700835, exp=1584718835}
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
-                .setSigningKey(SIGNING_KEY)
+                .setSigningKey(jwtSigningKey)
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -74,7 +79,7 @@ public class TokenProvider implements Serializable {
                 // key - "sub"
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
+                .signWith(SignatureAlgorithm.HS256, jwtSigningKey)
                 // key - 'iat'
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 //1000 - means milliseconds  and 5*60*60 = 18000 seconds = 5 hours
@@ -87,16 +92,16 @@ public class TokenProvider implements Serializable {
         return !isTokenExpired(token);
     }
 
-    public UsernamePasswordAuthenticationToken getAuthentication(final String token, final Authentication existingAuth, final UserDetails userDetails) {
+    public UsernamePasswordAuthenticationToken getAuthentication(final String token, final UserDetails userDetails) {
 
-        final JwtParser jwtParser = Jwts.parser().setSigningKey(SIGNING_KEY);
+        final JwtParser jwtParser = Jwts.parser().setSigningKey(jwtSigningKey);
         final Jws<Claims> claimsJws = jwtParser.parseClaimsJws(token);
         final Claims claims = claimsJws.getBody();
 
         final Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(ROLES_DELIMITER))
                         .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+                        .toList();
 
         return new UsernamePasswordAuthenticationToken(userDetails, StringUtils.EMPTY, authorities);
     }

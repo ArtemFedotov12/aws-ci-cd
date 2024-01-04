@@ -1,4 +1,4 @@
-package com.start.springlearningdemo.service.userService;
+package com.start.springlearningdemo.service.user;
 
 
 import com.start.springlearningdemo.enums.Role;
@@ -45,10 +45,7 @@ public class UserServiceImpl implements UserDetailsService {
 
     private Set<SimpleGrantedAuthority> getAuthority(final User user) {
         final Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-        user.getRoles().forEach(role -> {
-            //authorities.add(new SimpleGrantedAuthority(role.getName()));
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getValue()));
-        });
+        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getValue())));
         return authorities;
     }
 
