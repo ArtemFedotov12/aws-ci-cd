@@ -5,5 +5,4 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UnauthorizedException extends RuntimeException {
-}
+public class UnauthorizedException extends RuntimeException {}

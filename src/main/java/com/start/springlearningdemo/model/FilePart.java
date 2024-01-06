@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class FilePart {
-    private final String fileName;
-    private final int partNumber;
+  private final String fileName;
+  private final int partNumber;
 }

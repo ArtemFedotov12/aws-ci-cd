@@ -10,20 +10,19 @@ import org.springframework.security.web.SecurityFilterChain;
 @TestConfiguration
 public class TestSecurityConfig {
 
-    @Bean
-    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> {})
-                .authorizeHttpRequests(
-                        authorizeHttpRequests ->
-                                authorizeHttpRequests
-                                        .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                                        .anyRequest()
-                                        .authenticated()
-
-                );
-        return http.build();
-    }
+  @Bean
+  public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .cors(cors -> {})
+        .authorizeHttpRequests(
+            authorizeHttpRequests ->
+                authorizeHttpRequests
+                    .requestMatchers(HttpMethod.GET, "/api/health")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/login")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated());
+    return http.build();
+  }
 }

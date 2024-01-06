@@ -15,27 +15,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthenticationController {
 
+  private final AuthenticationManager authenticationManager;
+  private final TokenProvider jwtTokenUtil;
 
-    private final AuthenticationManager authenticationManager;
-    private final TokenProvider jwtTokenUtil;
+  public AuthenticationController(
+      final AuthenticationManager authenticationManager, final TokenProvider jwtTokenUtil) {
+    this.authenticationManager = authenticationManager;
+    this.jwtTokenUtil = jwtTokenUtil;
+  }
 
-    public AuthenticationController(final AuthenticationManager authenticationManager,
-                                    final TokenProvider jwtTokenUtil) {
-        this.authenticationManager = authenticationManager;
-        this.jwtTokenUtil = jwtTokenUtil;
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<AuthTokenResponseDto> login(@RequestBody AuthRequestDto authRequestDto) throws AuthenticationException {
-        final Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequestDto.getUsername(),
-                        authRequestDto.getPassword()
-                )
-        );
-        final String token = jwtTokenUtil.generateToken(authentication);
-        return ResponseEntity.ok(new AuthTokenResponseDto(token));
-    }
-
+  @PostMapping("/login")
+  public ResponseEntity<AuthTokenResponseDto> login(@RequestBody AuthRequestDto authRequestDto)
+      throws AuthenticationException {
+    final Authentication authentication =
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                authRequestDto.getUsername(), authRequestDto.getPassword()));
+    final String token = jwtTokenUtil.generateToken(authentication);
+    return ResponseEntity.ok(new AuthTokenResponseDto(token));
+  }
 }
-

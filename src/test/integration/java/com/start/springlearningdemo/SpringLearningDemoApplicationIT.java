@@ -1,39 +1,45 @@
 package com.start.springlearningdemo;
 
-import com.start.springlearningdemo.controller.HealthController;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
+import static com.start.springlearningdemo.constants.ApplicationConstants.AUTHORIZATION_HEADER;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-//@WebMvcTest(HealthController.class)
-//@ActiveProfiles("test")
-//@Import(TestSecurityConfig.class)
-public class SpringLearningDemoApplicationIT extends BaseServiceIT {
+class SpringLearningDemoApplicationIT extends BaseControllerIT {
 
-	@Autowired
-	private MockMvc mockMvc;
+  @Test
+  void contextLoads() {}
 
-	@Test
-	public void contextLoads() {
-	}
+  @Test
+  // @WithMockUser(roles = "ADMIN")
+  // @WithAnonymousUser
+  void whenCheckHealthThenSuccess() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/health")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+  }
 
-	@Test
-	//@WithMockUser(roles = "ADMIN")
-	//@WithAnonymousUser
-	void whenCheckHealthThenSuccess() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.get("/api/health")
-						.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk());
-	}
+  @Test
+  void whenCheckEndpointWithAuthorizationThenSuccess() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/test")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .header(AUTHORIZATION_HEADER, JWT_USER_TOKEN_WITH_PREFIX))
+        .andExpect(status().isOk());
+  }
 
+  @Test
+  void whenCheckEndpointWithAuthorizationButJwtWasNotSendThenFailed401() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/test")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
+  }
 }

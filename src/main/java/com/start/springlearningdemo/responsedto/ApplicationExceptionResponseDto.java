@@ -1,15 +1,14 @@
 package com.start.springlearningdemo.responsedto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Builder
 @EqualsAndHashCode
@@ -17,16 +16,17 @@ import java.util.Map;
 @AllArgsConstructor
 public class ApplicationExceptionResponseDto {
 
-    @EqualsAndHashCode.Exclude
-    @JsonProperty("timestamp")
-    private final String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+  @EqualsAndHashCode.Exclude
+  @JsonProperty("timestamp")
+  private final String timestamp =
+      LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-    @JsonProperty("status")
-    private int status;
+  @JsonProperty("status")
+  private int status;
 
-    @JsonProperty("message")
-    private String message;
+  @JsonProperty("message")
+  private String message;
 
-    @JsonProperty("errors")
-    private Map<String, List<String>> errors;
+  @JsonProperty("errors")
+  private Map<String, List<String>> errors;
 }

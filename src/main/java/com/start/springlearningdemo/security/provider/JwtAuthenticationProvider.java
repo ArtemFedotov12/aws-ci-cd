@@ -16,54 +16,52 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Slf4j
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-    private final TokenProvider tokenProvider;
+  private final TokenProvider tokenProvider;
 
-    public JwtAuthenticationProvider(TokenProvider tokenProvider) {
-        this.tokenProvider = tokenProvider;
+  public JwtAuthenticationProvider(TokenProvider tokenProvider) {
+    this.tokenProvider = tokenProvider;
+  }
+
+  @Override
+  public Authentication authenticate(final Authentication authentication)
+      throws AuthenticationException {
+    final String token = authentication.getCredentials().toString();
+    String username = null;
+    try {
+      username = tokenProvider.getUsernameFromToken(token);
+    } catch (final ExpiredJwtException e) {
+      log.warn("The token is expired", e);
+    } catch (final SignatureException e) {
+      log.error("Verifying of an existing signature of a JWT failed.", e);
+    } catch (final Exception e) {
+      log.error("Error occurred while extracting data from token", e);
+    }
+    if (StringUtils.isBlank(username)) {
+      log.error("An error occurred during getting username from token");
+      throw new UnauthorizedException();
     }
 
-    @Override
-    public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
-        final String token = authentication.getCredentials().toString();
-        String username = null;
-        try {
-            username = tokenProvider.getUsernameFromToken(token);
-        } catch (final ExpiredJwtException e) {
-            log.warn("The token is expired", e);
-        } catch (final SignatureException e) {
-            log.error("Verifying of an existing signature of a JWT failed.", e);
-        } catch (final Exception e) {
-            log.error("Error occurred while extracting data from token", e);
-        }
-        if (StringUtils.isBlank(username)) {
-            log.error("An error occurred during getting username from token");
-            throw new UnauthorizedException();
-        }
+    UsernamePasswordAuthenticationToken tokenProviderAuthentication = null;
+    if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-        UsernamePasswordAuthenticationToken tokenProviderAuthentication = null;
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+      // do not fire request to DB
+      final UserDetails userDetails = tokenProvider.getUserDetailsFromToken(token);
 
-            // do not fire request to DB
-            final UserDetails userDetails = tokenProvider.getUserDetailsFromToken(token);
-
-            if (Boolean.TRUE.equals(tokenProvider.validateToken(token))) {
-                tokenProviderAuthentication = tokenProvider.getAuthentication(
-                        token,
-                        userDetails);
-                log.info("Authenticated user '{}'. Set authentication to the security context", username);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                log.error("Token validation failed");
-                throw new UnauthorizedException();
-            }
-        }
-
-        return tokenProviderAuthentication;
+      if (Boolean.TRUE.equals(tokenProvider.validateToken(token))) {
+        tokenProviderAuthentication = tokenProvider.getAuthentication(token, userDetails);
+        log.info("Authenticated user '{}'. Set authentication to the security context", username);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+      } else {
+        log.error("Token validation failed");
+        throw new UnauthorizedException();
+      }
     }
 
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication.equals(JwtAuthorizationToken.class);
-    }
+    return tokenProviderAuthentication;
+  }
 
+  @Override
+  public boolean supports(Class<?> authentication) {
+    return authentication.equals(JwtAuthorizationToken.class);
+  }
 }

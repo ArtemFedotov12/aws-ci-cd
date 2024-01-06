@@ -10,5 +10,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthTokenResponseDto {
-    private String token;
+  private String token;
 }
