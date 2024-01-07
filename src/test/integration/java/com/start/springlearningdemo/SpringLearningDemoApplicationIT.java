@@ -11,11 +11,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 class SpringLearningDemoApplicationIT extends BaseControllerIT {
 
   @Test
-  void contextLoads() {}
-
-  @Test
-  // @WithMockUser(roles = "ADMIN")
-  // @WithAnonymousUser
   void whenCheckHealthThenSuccess() throws Exception {
     mockMvc
         .perform(
