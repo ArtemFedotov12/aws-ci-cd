@@ -1,4 +1,4 @@
-package com.start.springlearningdemo.service;
+package com.start.springlearningdemo.service.file;
 
 import static com.start.springlearningdemo.constants.ApplicationConstants.CURRENT_FILE_PART_HEADER;
 import static com.start.springlearningdemo.constants.ApplicationConstants.LAST_FILE_PART_HEADER;

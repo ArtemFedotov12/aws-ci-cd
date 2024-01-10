@@ -1,6 +1,6 @@
-package com.start.springlearningdemo;
+package com.start.springlearningdemo.config;
 
-import static com.start.springlearningdemo.BaseControllerIT.JWT_USER_TOKEN;
+import static com.start.springlearningdemo.controller.BaseControllerIT.JWT_USER_TOKEN;
 import static org.mockito.Mockito.when;
 
 import com.start.springlearningdemo.enums.Role;
@@ -17,7 +17,7 @@ import org.springframework.security.core.userdetails.User;
 
 @Profile("test")
 @Configuration
-public class TestConfiguration {
+public class TestControllerConfiguration {
 
   @Bean
   public TokenProvider tokenProvider() {

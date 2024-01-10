@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1704814389273-1
+      author: artem_fedotov (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: itemsPK
+                  name: id
+                  type: UUID
+              - column:
+                  name: created_at
+                  type: TIMESTAMP(6) WITHOUT TIME ZONE
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP(6) WITHOUT TIME ZONE
+              - column:
+                  name: updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: name
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: false
+            tableName: items
+      rollback:
+        - sql:
+            sql: drop table item;

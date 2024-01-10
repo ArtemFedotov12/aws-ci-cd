@@ -1,4 +1,4 @@
-package com.start.springlearningdemo.service;
+package com.start.springlearningdemo.service.file;
 
 import static com.start.springlearningdemo.constants.ApplicationConstants.*;
 
@@ -18,20 +18,21 @@ import org.springframework.stereotype.Service;
 public class FileServiceImpl implements FileService {
 
   @Override
-  public FileSplitting splitFileBySize(final InputStream inputStream, final int maxChunkSize) {
+  public FileSplitting splitFileBySize(
+      final InputStream inputStream, final int maxChunkSize, final Path targetDirectoryPath) {
     log.info("Start splitting file by chunks. Chunk size: {}", maxChunkSize);
     final FileSplitting result = new FileSplitting();
     List<Path> files;
     String encodedPath = null;
     try {
-      final Path tempDirectoryPath = FileUtils.createTempDirectory(FILE_SPLITTING_DIRECTORY_PREFIX);
-      log.info("Created temp directory for file chunks: {}", tempDirectoryPath.toAbsolutePath());
+      log.info("Created temp directory for file chunks: {}", targetDirectoryPath.toAbsolutePath());
       encodedPath =
-          URLEncoder.encode(tempDirectoryPath.toAbsolutePath().toString(), StandardCharsets.UTF_8);
+          URLEncoder.encode(
+              targetDirectoryPath.toAbsolutePath().toString(), StandardCharsets.UTF_8);
 
-      files = FileUtils.splitBySize(inputStream, maxChunkSize, tempDirectoryPath);
+      files = FileUtils.splitBySize(inputStream, maxChunkSize, targetDirectoryPath);
       log.info(
-          "End splitting file by chunks. Temp directory: {}", tempDirectoryPath.toAbsolutePath());
+          "End splitting file by chunks. Temp directory: {}", targetDirectoryPath.toAbsolutePath());
     } catch (final Exception e) {
       log.error("Error occurred while file splitting. Error: {}", e.getMessage(), e);
       files = new ArrayList<>();

@@ -1,13 +1,16 @@
-package com.start.springlearningdemo;
+package com.start.springlearningdemo.controller;
 
 import static com.start.springlearningdemo.utils.Constants.TOKEN_PREFIX;
 
+import com.start.springlearningdemo.config.TestControllerConfiguration;
 import com.start.springlearningdemo.security.TokenProvider;
 import com.start.springlearningdemo.security.config.WebSecurityConfig;
 import com.start.springlearningdemo.security.provider.AuthorizationProvider;
 import com.start.springlearningdemo.security.provider.JwtAuthenticationProvider;
-import com.start.springlearningdemo.service.FileMessageSender;
-import com.start.springlearningdemo.service.FileService;
+import com.start.springlearningdemo.service.ItemService;
+import com.start.springlearningdemo.service.file.FileMessageSender;
+import com.start.springlearningdemo.service.file.FileProcessor;
+import com.start.springlearningdemo.service.file.FileService;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,7 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")
-@Import({TestConfiguration.class})
+@Import({TestControllerConfiguration.class})
 public abstract class BaseControllerIT {
 
   public static final String JWT_USER_TOKEN = "someJwtToken";
@@ -46,4 +49,8 @@ public abstract class BaseControllerIT {
   @MockBean protected AuthorizationProvider authorizationProvider;
 
   @MockBean protected FileMessageSender fileMessageSender;
+
+  @MockBean protected FileProcessor fileProcessor;
+
+  @MockBean protected ItemService itemService;
 }

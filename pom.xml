@@ -19,6 +19,8 @@
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMdd-HHmmssSSS</maven.build.timestamp.format>
     </properties>
     <dependencies>
 
@@ -118,6 +120,22 @@
             <version>3.6.1</version>
         </dependency>
 
+        <!-- Database -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <!-- Database -->
 
     </dependencies>
 
@@ -144,7 +162,7 @@
                 </configuration>
             </plugin>
 
-            <plugin>
+<!--            <plugin>
                 <groupId>com.coveo</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
                 <version>2.6.0</version>
@@ -159,7 +177,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
 
             <!--Split integration test and unit test-->
             <plugin>
@@ -208,6 +226,62 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>4.24.0</version>
+                <configuration>
+                    <!-- We comment property file, because i don't know how use variables there like ${timestamp}-->
+                    <!--<propertyFile>src/main/resources/postgress-liquibase-maven-plugin.properties</propertyFile>-->
+                    <changeLogFile>src/main/resources/db/liquibase-changelog.yaml</changeLogFile>
+                    <url>jdbc:postgresql://localhost:5432/demo_kafka</url>
+                    <username>postgres</username>
+                    <password>root</password>
+                    <driver>org.postgresql.Driver</driver>
+                    <referenceDriver>liquibase.ext.hibernate.database.connection.HibernateDriver</referenceDriver>
+                    <referenceUrl>hibernate:spring:com.start.springlearningdemo.entity?dialect=org.hibernate.dialect.PostgreSQLDialect</referenceUrl>
+                    <diffChangeLogFile>src/main/resources/db/changelog/db.changelog-${timestamp}.yaml</diffChangeLogFile>
+
+                    <systemProperties>
+                        <user.name>artem_fedotov</user.name>
+                    </systemProperties>
+                    <logging>debug</logging>
+                </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.liquibase.ext</groupId>
+                        <artifactId>liquibase-hibernate6</artifactId>
+                        <version>4.25.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-data-jpa</artifactId>
+                        <version>3.2.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>42.6.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>javax.validation</groupId>
+                        <artifactId>validation-api</artifactId>
+                        <version>2.0.1.Final</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                        <version>3.29.0-GA</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.yaml</groupId>
+                        <artifactId>snakeyaml</artifactId>
+                        <version>2.2</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
         </plugins>
