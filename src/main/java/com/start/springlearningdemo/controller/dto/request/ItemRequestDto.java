@@ -8,5 +8,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ItemRequestDto {
-    private String name;
+  private String name;
 }

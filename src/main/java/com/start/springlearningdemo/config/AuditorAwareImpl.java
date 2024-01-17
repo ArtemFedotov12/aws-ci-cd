@@ -1,12 +1,11 @@
 package com.start.springlearningdemo.config;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import java.util.Optional;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Optional;
-
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 // config for annotations like "@CreatedDate"
 public class AuditorAwareImpl implements AuditorAware<String> {

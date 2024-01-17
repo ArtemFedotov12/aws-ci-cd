@@ -1,7 +1,6 @@
 package com.start.springlearningdemo.entity;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
@@ -25,14 +24,18 @@ public class BaseEntity {
   @Id @GeneratedValue private UUID id;
 
   @Column(name = "created_by")
-  @CreatedBy private String createdBy;
+  @CreatedBy
+  private String createdBy;
 
   @Column(name = "created_at")
-  @CreatedDate private LocalDateTime createdAt;
+  @CreatedDate
+  private LocalDateTime createdAt;
 
   @Column(name = "updated_at")
-  @LastModifiedDate private LocalDateTime updatedAt;
+  @LastModifiedDate
+  private LocalDateTime updatedAt;
 
   @Column(name = "updated_by")
-  @LastModifiedBy private String updatedBy;
+  @LastModifiedBy
+  private String updatedBy;
 }

@@ -1,9 +1,21 @@
 package com.start.springlearningdemo.service;
 
+import com.start.springlearningdemo.service.model.FileSplitting;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class FileServiceIT extends BaseServiceIT {
 
-  /*  @Test
+  @Test
   void whenSplitFileByChunksThenSuccess(@TempDir Path tempDirectory)
       throws IOException, URISyntaxException {
     try (final InputStream inputStream =
@@ -23,5 +35,5 @@ class FileServiceIT extends BaseServiceIT {
       Assertions.assertTrue(
           lastFileContent.contains("Hello, Elva Church! You have 1 unread messages."));
     }
-  }*/
+  }
 }
